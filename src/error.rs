@@ -1,7 +1,4 @@
-use std::{
-    fmt::Display,
-    process::exit,
-};
+use std::{fmt::Display, process::exit};
 
 use log::*;
 

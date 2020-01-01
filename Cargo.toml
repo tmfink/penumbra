@@ -7,8 +7,11 @@ edition = "2018"
 [dependencies]
 chrono = "0.4"
 fern = "0.5"
-hyper = "0.12"
+futures = "0.3"
+http = "0.2"
+hyper = "0.13"
 log = "0.4"
+tokio = { version = "0.2", features = ["full"] }
 
 [dependencies.clap]
 version = "2.32"

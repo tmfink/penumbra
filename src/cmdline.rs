@@ -89,14 +89,22 @@ fn cmd_set_specified_all_or_nothing(
     name: &str,
     options: &[&str],
 ) -> Result<(), String> {
-    let missing: Vec<&str> = options.iter().cloned().filter(|opt| matches.is_present(opt)).clone().collect();
+    let missing: Vec<&str> = options
+        .iter()
+        .cloned()
+        .filter(|opt| matches.is_present(opt))
+        .clone()
+        .collect();
     if missing.len() == options.len() || missing.len() == 0 {
         Ok(())
     } else {
-        eprintln!("For {} set, missing arguments: {}", name, cmd_list_str(&missing));
+        eprintln!(
+            "For {} set, missing arguments: {}",
+            name,
+            cmd_list_str(&missing)
+        );
         exit(1);
     }
-
 }
 
 fn cmd_list_str(args: &[&str]) -> String {
@@ -208,7 +216,6 @@ pub(crate) fn parse_args() -> Result<UmbraOptions, String> {
         .after_help(option_sets_warning.as_str())
         .get_matches();
 
-
     if !(matches.is_present(HTTP_LISTEN_PORT_ARG) || matches.is_present(HTTPS_LISTEN_PORT_ARG)) {
         eprintln!("{}", option_sets_warning);
         exit(1);
@@ -290,9 +297,13 @@ pub(crate) fn parse_args() -> Result<UmbraOptions, String> {
     };
 
     let listen_ip_str = matches.value_of(LISTEN_IP_ARG).unwrap();
-    let listen_ip: IpAddr = listen_ip_str.parse().map_err(|err| format!("Failed to parse listen IP \"{}\": {}", listen_ip_str, err))?;
+    let listen_ip: IpAddr = listen_ip_str
+        .parse()
+        .map_err(|err| format!("Failed to parse listen IP \"{}\": {}", listen_ip_str, err))?;
     let connect_ip_str = matches.value_of(CONNECT_IP_ARG).unwrap();
-    let connect_ip: IpAddr = connect_ip_str.parse().map_err(|err| format!("Failed to parse connect IP \"{}\": {}", connect_ip_str, err))?;
+    let connect_ip: IpAddr = connect_ip_str
+        .parse()
+        .map_err(|err| format!("Failed to parse connect IP \"{}\": {}", connect_ip_str, err))?;
 
     Ok(UmbraOptions {
         http_ports,
