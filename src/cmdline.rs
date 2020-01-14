@@ -84,6 +84,7 @@ fn log_level(verbose_count: usize, quiet_count: usize) -> LevelFilter {
     LOG_LEVELS[max(0, min(log_index, (LOG_LEVELS.len() - 1) as i32)) as usize]
 }
 
+/// Ensure that either all options were passed or none
 fn cmd_set_specified_all_or_nothing(
     matches: &clap::ArgMatches,
     name: &str,
@@ -95,7 +96,7 @@ fn cmd_set_specified_all_or_nothing(
         .filter(|opt| matches.is_present(opt))
         .clone()
         .collect();
-    if missing.len() == options.len() || missing.len() == 0 {
+    if missing.len() == options.len() || missing.is_empty() {
         Ok(())
     } else {
         eprintln!(
