@@ -1,5 +1,5 @@
 [package]
-name = "umbra"
+name = "penumbra"
 version = "0.1.0"
 authors = ["Travis Finkenauer <tmfinken@gmail.com>"]
 edition = "2018"
@@ -11,6 +11,7 @@ futures = "0.3"
 http = "0.2"
 hyper = "0.13"
 log = "0.4"
+thiserror = "1.0.9"
 tokio = { version = "0.2", features = ["full"] }
 
 [dependencies.clap]

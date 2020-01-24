@@ -7,9 +7,13 @@ use std::{
     net::SocketAddr,
 };
 
-use http::uri;
-use hyper::service::{make_service_fn, service_fn};
-use hyper::{Body, Client, Request, Response, Server, Uri};
+use http::{uri, HeaderValue};
+use hyper::{
+    header,
+    server::conn::AddrStream,
+    service::{make_service_fn, service_fn},
+    Body, Client, Request, Response, Server, Uri,
+};
 use log::*;
 
 use crate::config::*;
@@ -29,12 +33,13 @@ async fn main() {
         .into();
     let client = HttpClient::new();
 
-    let make_service = make_service_fn(move |_| {
+    let make_service = make_service_fn(move |addr_stream: &AddrStream| {
         let umbra_options = umbra_options.clone();
         let client = client.clone();
+        let remote_addr = addr_stream.remote_addr();
         async move {
             Ok::<_, Infallible>(service_fn(move |req| {
-                proxy(client.clone(), req, umbra_options.clone())
+                proxy(remote_addr, client.clone(), req, umbra_options.clone())
             }))
         }
     });
@@ -47,16 +52,48 @@ async fn main() {
         error!("server error: {}", e);
     }
 }
+
+/// Context with each connection
+#[derive(Debug, Clone)]
+struct ConnectionCtx {
+    remote_addr: SocketAddr,
+}
+
+/// Modify the incoming request before forwarding to the internal server
+fn tinker_http_request(connection: &mut ConnectionCtx, request: &mut Request<Body>) -> Result<()> {
+    let headers = request.headers_mut();
+    let remote_ip_str = format!("{}", connection.remote_addr.ip());
+    headers.insert(
+        header::FORWARDED,
+        HeaderValue::from_str(&remote_ip_str).unwrap(),
+    );
+
+    Ok(())
+}
+
+/// Modify the response before forwarding to the external client
+fn tinker_http_response(
+    _connection: &mut ConnectionCtx,
+    response: &mut Response<Body>,
+) -> Result<()> {
+    let headers = response.headers_mut();
+    headers.insert("X-proxy-shim", HeaderValue::from_static("penumbra"));
+
+    Ok(())
+}
+
+/// Proxy between remote client and local server
 async fn proxy(
+    remote_addr: SocketAddr,
     client: HttpClient,
     mut req: Request<Body>,
     umbra_options: UmbraOptions,
-) -> Result<Response<Body>, hyper::Error> {
+) -> Result<Response<Body>> {
     info!("{} to {:?}", req.method(), req.uri());
     trace!("req: {:?}", req);
 
     let uri = req.uri().clone();
-    let mut connect_uri_parts = dbg!(uri.into_parts());
+    let mut connect_uri_parts = uri.into_parts();
     let connect_authority_str = format!(
         "{}:{}",
         umbra_options.connect_ip,
@@ -73,5 +110,11 @@ async fn proxy(
         Uri::from_parts(connect_uri_parts).expect("could not create connect URI from parts");
     *req.uri_mut() = connect_uri;
 
-    client.request(req).await
+    let mut connection = ConnectionCtx { remote_addr };
+    tinker_http_request(&mut connection, &mut req)?;
+
+    let mut response = client.request(req).await?;
+    tinker_http_response(&mut connection, &mut response)?;
+
+    Ok(response)
 }

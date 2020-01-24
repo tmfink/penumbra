@@ -1,13 +1,26 @@
 use std::{fmt::Display, process::exit};
 
+use hyper;
 use log::*;
+use thiserror::Error;
 
 pub trait UnwrapLoggable<T> {
     fn unwrap_log(self) -> T;
     fn map_string_error(self) -> Result<T, String>;
 }
 
-impl<T, E> UnwrapLoggable<T> for Result<T, E>
+#[derive(Error, Debug)]
+pub enum Error {
+    #[error("hyper error")]
+    HyperError {
+        #[from]
+        source: hyper::Error,
+    },
+}
+
+pub type Result<T, E = Error> = std::result::Result<T, E>;
+
+impl<T, E> UnwrapLoggable<T> for std::result::Result<T, E>
 where
     E: Display,
 {
@@ -21,26 +34,10 @@ where
         }
     }
 
-    fn map_string_error(self) -> Result<T, String> {
+    fn map_string_error(self) -> std::result::Result<T, String> {
         self.map_err(|err| format!("{}", err))
     }
 }
-
-//trait ExpectLoggable<T> {
-//    fn expect_log(self, msg: &str) -> T;
-//}
-//
-//impl<T> ExpectLoggable<T> for Option<T> {
-//    fn expect_log(self, msg: &str) -> T {
-//        match self {
-//            Some(t) => t,
-//            None => {
-//                error!("{}", msg);
-//                exit(1);
-//            }
-//        }
-//    }
-//}
 
 #[macro_export]
 macro_rules! expect_log {

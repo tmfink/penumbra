@@ -1,7 +1,7 @@
-# Umbra-rs
+# Penumbra
 
 An HTTP application-layer proxy firewall.
 
-This is the Rust language implementation of the [Umbra firewall shim][umbra].
+Penumbra is based on the [Umbra firewall shim][umbra].
 
 [umbra]: https://github.com/umbra-firewall/umbra
