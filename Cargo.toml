@@ -5,6 +5,9 @@ authors = ["Travis Finkenauer <tmfinken@gmail.com>"]
 edition = "2018"
 license = "MIT OR Apache-2.0"
 readme = "README.md"
+keywords = ["security", "firewall", "http"]
+categories = ["command-line-utilities", "web-programming"]
+repository = "https://github.com/tmfink/penumbra"
 description = """
 Penumbra: HTTP application-layer firewall shim
 """
