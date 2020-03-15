@@ -26,7 +26,7 @@ async fn main() {
     let umbra_options = cmdline::parse_args().unwrap_log();
     debug!("Options: {:?}", umbra_options);
 
-    let listen_addr: SocketAddr = (
+    let http_listen_addr: SocketAddr = (
         umbra_options.listen_ip,
         umbra_options.http_ports.unwrap().listen,
     )
@@ -44,11 +44,11 @@ async fn main() {
         }
     });
 
-    let server = Server::bind(&listen_addr).serve(make_service);
+    let http_server = Server::bind(&http_listen_addr).serve(make_service);
 
-    info!("Listening on http://{}", listen_addr);
+    info!("Listening on http://{}", http_listen_addr);
 
-    if let Err(e) = server.await {
+    if let Err(e) = http_server.await {
         error!("server error: {}", e);
     }
 }

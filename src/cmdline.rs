@@ -90,19 +90,23 @@ fn cmd_set_specified_all_or_nothing(
     name: &str,
     options: &[&str],
 ) -> Result<(), String> {
-    let missing: Vec<&str> = options
-        .iter()
-        .cloned()
-        .filter(|opt| matches.is_present(opt))
-        .clone()
-        .collect();
-    if missing.len() == options.len() || missing.is_empty() {
+    let mut specified: Vec<&str> = Vec::with_capacity(options.len());
+    let mut missing: Vec<&str> = Vec::with_capacity(options.len());
+    for opt in options {
+        if matches.is_present(opt) {
+            specified.push(opt);
+        } else {
+            missing.push(opt);
+        }
+    }
+    if specified.len() == options.len() || specified.is_empty() {
         Ok(())
     } else {
         eprintln!(
-            "For {} set, missing arguments: {}",
+            "For option set {}:\n    missing arguments: {}\n    specified args:    {}",
             name,
-            cmd_list_str(&missing)
+            cmd_list_str(&missing),
+            cmd_list_str(&specified)
         );
         exit(1);
     }
