@@ -7,7 +7,7 @@ use std::{
 };
 
 use chrono;
-use clap::{self, crate_version, App, Arg};
+use clap::{self, crate_version, Arg, Command};
 use fern;
 use log::*;
 
@@ -135,12 +135,12 @@ pub(crate) fn parse_args() -> Result<UmbraOptions, String> {
         cmd_list_str(&https_options)
     );
 
-    let matches = App::new("Umbra Firewall")
+    let matches = Command::new("Umbra Firewall")
         .version(crate_version!())
         .author("Travis Finkenauer <tmfinken@gmail.com>")
         .about("Acts as an HTTP firewall between a webserver and the outside world")
         .arg(
-            Arg::with_name(LISTEN_IP_ARG)
+            Arg::new(LISTEN_IP_ARG)
                 .long(LISTEN_IP_ARG)
                 .default_value("0.0.0.0")
                 .value_name("IP")
@@ -148,7 +148,7 @@ pub(crate) fn parse_args() -> Result<UmbraOptions, String> {
                 .takes_value(true),
         )
         .arg(
-            Arg::with_name(CONNECT_IP_ARG)
+            Arg::new(CONNECT_IP_ARG)
                 .long(CONNECT_IP_ARG)
                 .default_value("127.0.0.1")
                 .value_name("IP")
@@ -156,50 +156,50 @@ pub(crate) fn parse_args() -> Result<UmbraOptions, String> {
                 .takes_value(true),
         )
         .arg(
-            Arg::with_name(HTTP_LISTEN_PORT_ARG)
+            Arg::new(HTTP_LISTEN_PORT_ARG)
                 .long(HTTP_LISTEN_PORT_ARG)
                 .value_name("PORT")
                 .help("HTTP port on which shim should listen")
                 .takes_value(true),
         )
         .arg(
-            Arg::with_name(HTTPS_LISTEN_PORT_ARG)
+            Arg::new(HTTPS_LISTEN_PORT_ARG)
                 .long(HTTPS_LISTEN_PORT_ARG)
                 .value_name("PORT")
                 .help("HTTPS port on which shim should listen")
                 .takes_value(true),
         )
         .arg(
-            Arg::with_name(HTTP_CONNECT_PORT_ARG)
+            Arg::new(HTTP_CONNECT_PORT_ARG)
                 .long(HTTP_CONNECT_PORT_ARG)
                 .value_name("PORT")
                 .help("HTTP port on which shim should connect (where main server is listening)")
                 .takes_value(true),
         )
         .arg(
-            Arg::with_name(HTTPS_CONNECT_PORT_ARG)
+            Arg::new(HTTPS_CONNECT_PORT_ARG)
                 .long(HTTPS_CONNECT_PORT_ARG)
                 .value_name("PORT")
                 .help("HTTPS port on which shim should connect (where main server is listening)")
                 .takes_value(true),
         )
         .arg(
-            Arg::with_name(TLS_CERT_ARG)
+            Arg::new(TLS_CERT_ARG)
                 .long(TLS_CERT_ARG)
                 .value_name("PEM_FILE")
                 .help("PEM file with TLS certificate chain")
                 .takes_value(true),
         )
         .arg(
-            Arg::with_name(TLS_KEY_ARG)
+            Arg::new(TLS_KEY_ARG)
                 .long(TLS_KEY_ARG)
                 .value_name("PEM_FILE")
                 .help("PEM file with server private key")
                 .takes_value(true),
         )
         .arg(
-            Arg::with_name(CONFIG_ARG)
-                .short("c")
+            Arg::new(CONFIG_ARG)
+                .short('c')
                 .long(CONFIG_ARG)
                 .value_name("FILE")
                 .help("configuration file")
@@ -207,15 +207,15 @@ pub(crate) fn parse_args() -> Result<UmbraOptions, String> {
                 .takes_value(true),
         )
         .arg(
-            Arg::with_name(VERBOSITY_ARG)
-                .short(VERBOSITY_ARG)
-                .multiple(true)
+            Arg::new(VERBOSITY_ARG)
+                .short('v')
+                .multiple_occurrences(true)
                 .help("Increases logging verbosity"),
         )
         .arg(
-            Arg::with_name(QUIET_ARG)
-                .short(QUIET_ARG)
-                .multiple(true)
+            Arg::new(QUIET_ARG)
+                .short('q')
+                .multiple_occurrences(true)
                 .help("Decreases logging verbosity"),
         )
         .after_help(option_sets_warning.as_str())
