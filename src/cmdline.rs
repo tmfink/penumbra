@@ -6,9 +6,7 @@ use std::{
     process::exit,
 };
 
-use chrono;
 use clap::{self, crate_version, Arg, Command};
-use fern;
 use log::*;
 
 use crate::error::*;

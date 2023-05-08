@@ -1,6 +1,5 @@
 use std::{fmt::Display, process::exit};
 
-use hyper;
 use log::*;
 use thiserror::Error;
 
